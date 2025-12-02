@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Scissors, BarChart2, Download, Clock, Share2, Youtube, Loader2, Sparkles, CheckCircle, Github, Hash, FileText, Star, AlertTriangle } from 'lucide-react';
 
+// KONFIGURASI URL BACKEND
+// Ganti URL di bawah ini dengan URL dari Render.com setelah Anda berhasil deploy backend.
+// Contoh: const API_URL = 'https://nama-aplikasi-anda.onrender.com';
+const API_URL = 'https://azira25-auto-clip.hf.space'; // Default untuk testing lokal
+
 const App = () => {
   const [url, setUrl] = useState('');
   const [videoId, setVideoId] = useState(null);
@@ -33,11 +38,11 @@ const App = () => {
     setActiveClip(null);
     setErrorMsg('');
     setProgress(10);
-    setAnalysisStep('Menghubungkan ke Server Python...');
+    setAnalysisStep('Menghubungkan ke Server Cloud...'); // Updated text
 
     try {
-      // 1. Kirim request ke Backend Python lokal
-      const response = await fetch('http://localhost:5000/analyze', {
+      // Menggunakan API_URL yang sudah dikonfigurasi di atas
+      const response = await fetch(`${API_URL}/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +55,7 @@ const App = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.error || "Gagal menganalisa video");
+        throw new Error(errData.error || "Gagal menganalisa video. Pastikan Backend aktif.");
       }
 
       const data = await response.json();
@@ -67,7 +72,6 @@ const App = () => {
     } catch (err) {
       console.error(err);
       setErrorMsg(err.message);
-      // Fallback ke error state, jangan load mock data biar user tau ini real
     } finally {
       setIsAnalyzing(false);
     }
@@ -95,13 +99,13 @@ const App = () => {
               <Scissors className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-              AutoClip Real <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded ml-2 border border-slate-700">Python Backend</span>
+              AutoClip Real <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded ml-2 border border-slate-700">Cloud Mode</span>
             </span>
           </div>
           <div className="flex gap-4 text-sm text-slate-400 items-center">
             <div className="flex items-center gap-2 px-3 py-1 bg-green-900/30 border border-green-800 rounded-full text-green-400 text-xs">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Server Mode
+                {API_URL.includes('localhost') ? 'Local Mode' : 'Cloud Mode'}
             </div>
           </div>
         </div>
@@ -116,7 +120,7 @@ const App = () => {
             <span className="text-purple-400">Berdasarkan Transkrip Asli</span>
           </h1>
           <p className="text-slate-400 mb-8">
-            Sistem ini menggunakan <strong>Python Backend</strong> untuk membaca subtitle asli video dan mencari momen relevan, bukan data palsu.
+            Sistem ini menggunakan <strong>Python Backend</strong> (Flask) untuk membaca subtitle asli video dan mencari momen relevan.
           </p>
 
           <div className="flex flex-col gap-4">
@@ -174,7 +178,11 @@ const App = () => {
                     <div>
                         <p className="font-bold">Gagal Menganalisa:</p>
                         <p>{errorMsg}</p>
-                        <p className="text-xs mt-2 opacity-70">Tips: Pastikan server python berjalan (<code>python server.py</code>) dan video memiliki subtitle.</p>
+                        <p className="text-xs mt-2 opacity-70">
+                           {API_URL.includes('localhost') 
+                             ? "Tips: Pastikan server python lokal berjalan (python server.py)."
+                             : "Tips: Pastikan server cloud (Render) sedang aktif dan tidak dalam mode sleep."}
+                        </p>
                     </div>
                 </div>
             )}
