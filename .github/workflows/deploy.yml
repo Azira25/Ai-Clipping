@@ -25,10 +25,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          # Cache dihapus sementara karena tidak ada package-lock.json
           
       - name: Install dependencies
-        run: npm ci
+        # Menggunakan 'npm install' karena 'npm ci' wajib butuh lock file
+        run: npm install
         
       - name: Build
         run: npm run build
